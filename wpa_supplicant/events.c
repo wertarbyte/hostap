@@ -697,6 +697,16 @@ static int bss_is_ess(struct wpa_bss *bss)
 		IEEE80211_CAP_ESS);
 }
 
+static int addr_in_list(u8 *addr, u8 *list, size_t num) {
+	size_t i;
+	for (i = 0; i < num; i++) {
+		u8 *a = list + (i*ETH_ALEN);
+		if (os_memcmp(a, addr, ETH_ALEN) == 0) {
+			return 1;
+		}
+	}
+	return 0;
+}
 
 static struct wpa_ssid * wpa_scan_res_match(struct wpa_supplicant *wpa_s,
 					    int i, struct wpa_bss *bss,
@@ -820,6 +830,22 @@ static struct wpa_ssid * wpa_scan_res_match(struct wpa_supplicant *wpa_s,
 		    os_memcmp(bss->bssid, ssid->bssid, ETH_ALEN) != 0) {
 			wpa_dbg(wpa_s, MSG_DEBUG, "   skip - BSSID mismatch");
 			continue;
+		}
+
+		/* check blacklist */
+		if (ssid->num_bssid_blacklist) {
+			if (addr_in_list(bss->bssid, ssid->bssid_blacklist, ssid->num_bssid_blacklist)) {
+				wpa_dbg(wpa_s, MSG_DEBUG, "   skip - BSSID blacklisted");
+				continue;
+			}
+		}
+
+		/* if there is a whitelist, only accept those APs */
+		if (ssid->num_bssid_whitelist) {
+			if (! addr_in_list(bss->bssid, ssid->bssid_whitelist, ssid->num_bssid_whitelist)) {
+				wpa_dbg(wpa_s, MSG_DEBUG, "   skip - BSSID not in whitelist");
+				continue;
+			}
 		}
 
 		if (!wpa_supplicant_ssid_bss_match(wpa_s, ssid, bss))
