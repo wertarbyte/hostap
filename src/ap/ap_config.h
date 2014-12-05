@@ -86,6 +86,10 @@ struct hostapd_ssid {
 	unsigned int wpa_passphrase_set:1;
 	unsigned int wpa_psk_set:1;
 
+#ifdef CONFIG_MULTI_SSID
+	unsigned int catchall:1;
+#endif /* CONFIG_MULTI_SSID */
+
 	char vlan[IFNAMSIZ + 1];
 	secpolicy security_policy;
 

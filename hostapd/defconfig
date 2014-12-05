@@ -298,6 +298,9 @@ CONFIG_IPV6=y
 # Enable CLI commands for FST testing
 #CONFIG_FST_TEST=y
 
+# Enable the handling of multiple dynamically generated SSIDs for each BSS
+#CONFIG_MULTI_SSID=y
+
 # Testing options
 # This can be used to enable some testing options (see also the example
 # configuration file) that are really useful only for testing clients that

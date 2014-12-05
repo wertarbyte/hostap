@@ -2053,6 +2053,10 @@ static int hostapd_config_fill(struct hostapd_config *conf,
 		os_free(str);
 	} else if (os_strcmp(buf, "utf8_ssid") == 0) {
 		bss->ssid.utf8_ssid = atoi(pos) > 0;
+#ifdef CONFIG_MULTI_SSID
+	} else if (os_strcmp(buf, "catchall") == 0) {
+		bss->ssid.catchall = atoi(pos) > 0;
+#endif /* CONFIG_MULTI_SSID */
 	} else if (os_strcmp(buf, "macaddr_acl") == 0) {
 		bss->macaddr_acl = atoi(pos);
 		if (bss->macaddr_acl != ACCEPT_UNLESS_DENIED &&

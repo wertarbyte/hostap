@@ -1264,16 +1264,27 @@ static u16 check_ssid(struct hostapd_data *hapd, struct sta_info *sta,
 	if (ssid_ie == NULL)
 		return WLAN_STATUS_UNSPECIFIED_FAILURE;
 
-	if (ssid_ie_len != hapd->conf->ssid.ssid_len ||
-	    os_memcmp(ssid_ie, hapd->conf->ssid.ssid, ssid_ie_len) != 0) {
-		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE80211,
-			       HOSTAPD_LEVEL_INFO,
-			       "Station tried to associate with unknown SSID "
-			       "'%s'", wpa_ssid_txt(ssid_ie, ssid_ie_len));
-		return WLAN_STATUS_UNSPECIFIED_FAILURE;
+	if (ssid_ie_len == hapd->conf->ssid.ssid_len &&
+	    os_memcmp(ssid_ie, hapd->conf->ssid.ssid, ssid_ie_len) == 0) {
+		return WLAN_STATUS_SUCCESS;
 	}
 
-	return WLAN_STATUS_SUCCESS;
+#ifdef CONFIG_MULTI_SSID
+	if (hapd->conf->ssid.catchall) {
+		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE80211,
+			       HOSTAPD_LEVEL_INFO,
+			       "Station associating with catchall network, requested SSID "
+			       "'%s'", wpa_ssid_txt(ssid_ie, ssid_ie_len));
+		return WLAN_STATUS_SUCCESS;
+	}
+#endif /* CONFIG_MULTI_SSID */
+
+	hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE80211,
+		HOSTAPD_LEVEL_INFO,
+		"Station tried to associate with unknown SSID "
+		"'%s'", wpa_ssid_txt(ssid_ie, ssid_ie_len));
+
+	return WLAN_STATUS_UNSPECIFIED_FAILURE;
 }
 
 

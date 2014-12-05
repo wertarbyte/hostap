@@ -362,7 +362,8 @@ static u8 * hostapd_eid_supported_op_classes(struct hostapd_data *hapd, u8 *eid)
 static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 				   struct sta_info *sta,
 				   const struct ieee80211_mgmt *req,
-				   int is_p2p, size_t *resp_len)
+				   int is_p2p, size_t *resp_len,
+				   const u8 *ssid, size_t ssid_len)
 {
 	struct ieee80211_mgmt *resp;
 	u8 *pos, *epos, *csa_pos;
@@ -410,9 +411,9 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 
 	pos = resp->u.probe_resp.variable;
 	*pos++ = WLAN_EID_SSID;
-	*pos++ = hapd->conf->ssid.ssid_len;
-	os_memcpy(pos, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len);
-	pos += hapd->conf->ssid.ssid_len;
+	*pos++ = ssid_len;
+	os_memcpy(pos, ssid, ssid_len);
+	pos += ssid_len;
 
 	/* Supported rates */
 	pos = hostapd_eid_supp_rates(hapd, pos);
@@ -533,6 +534,9 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 enum ssid_match_result {
 	NO_SSID_MATCH,
 	EXACT_SSID_MATCH,
+#ifdef CONFIG_MULTI_SSID
+	CATCHALL_SSID_MATCH,
+#endif /* CONFIG_MULTI_SSID */
 	WILDCARD_SSID_MATCH
 };
 
@@ -569,6 +573,19 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 	return wildcard ? WILDCARD_SSID_MATCH : NO_SSID_MATCH;
 }
 
+#ifdef CONFIG_MULTI_SSID
+static u8 ssid_is_handled(struct hostapd_iface *iface, const u8 *ssid, size_t ssid_len) {
+	size_t i;
+	struct hostapd_data *bss;
+	for (i = 0; i < iface->num_bss; i++) {
+		bss = iface->bss[i];
+		if (bss->conf->ssid.ssid_len == ssid_len &&
+		    os_memcmp(bss->conf->ssid.ssid, ssid, ssid_len) == 0)
+			return 1;
+	}
+	return 0;
+}
+#endif /* CONFIG_MULTI_SSID */
 
 void sta_track_expire(struct hostapd_iface *iface, int force)
 {
@@ -677,6 +694,8 @@ void handle_probe_req(struct hostapd_data *hapd,
 	struct sta_info *sta = NULL;
 	size_t i, resp_len;
 	int noack;
+	const u8 *ssid = hapd->conf->ssid.ssid;
+	size_t ssid_len = hapd->conf->ssid.ssid_len;
 	enum ssid_match_result res;
 	int ret;
 	u16 csa_offs[2];
@@ -780,6 +799,27 @@ void handle_probe_req(struct hostapd_data *hapd,
 
 	res = ssid_match(hapd, elems.ssid, elems.ssid_len,
 			 elems.ssid_list, elems.ssid_list_len);
+
+#ifdef CONFIG_MULTI_SSID
+	/*
+	 * Process the probe request if "catchall" is set and no other match
+	 * is found in this or any other BSS.
+	 */
+	if (res == NO_SSID_MATCH && hapd->conf->ssid.catchall && elems.ssid_len
+	    && !ssid_is_handled(hapd->iface, elems.ssid, elems.ssid_len)) {
+		wpa_printf(MSG_MSGDUMP, "Probe Request from " MACSTR
+			   " for foreign (but handled) SSID '%s' (DA " MACSTR ")%s",
+			   MAC2STR(mgmt->sa),
+			   wpa_ssid_txt(elems.ssid, elems.ssid_len),
+			   MAC2STR(mgmt->da),
+			   elems.ssid_list ? " (SSID list)" : "");
+
+		ssid = elems.ssid;
+		ssid_len = elems.ssid_len;
+		res = CATCHALL_SSID_MATCH;
+	}
+#endif /* CONFIG_MULTI_SSID */
+
 	if (res != NO_SSID_MATCH) {
 		if (sta)
 			sta->ssid_probe = &hapd->conf->ssid;
@@ -874,7 +914,7 @@ void handle_probe_req(struct hostapd_data *hapd,
 #endif /* CONFIG_TESTING_OPTIONS */
 
 	resp = hostapd_gen_probe_resp(hapd, sta, mgmt, elems.p2p != NULL,
-				      &resp_len);
+				      &resp_len, ssid, ssid_len);
 	if (resp == NULL)
 		return;
 
@@ -943,7 +983,9 @@ static u8 * hostapd_probe_resp_offloads(struct hostapd_data *hapd,
 			   "this");
 
 	/* Generate a Probe Response template for the non-P2P case */
-	return hostapd_gen_probe_resp(hapd, NULL, NULL, 0, resp_len);
+	return hostapd_gen_probe_resp(hapd, NULL, NULL, 0, resp_len,
+	                              hapd->conf->ssid.ssid,
+	                              hapd->conf->ssid.ssid_len);
 }
 
 #endif /* NEED_AP_MLME */
