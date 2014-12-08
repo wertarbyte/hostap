@@ -35,6 +35,20 @@ int hex2byte(const char *hex)
 	return (a << 4) | b;
 }
 
+static const char *hwaddr_parse(const char *txt, u8 *addr) {
+	size_t i;
+	for (i = 0; i < ETH_ALEN; i++) {
+		int a = 0;
+		a = hex2byte(txt);
+		if (a < 0)
+			return NULL;
+		txt += 2;
+		addr[i] = a;
+		if (i < ETH_ALEN-1 && *txt++ != ':')
+			return NULL;
+	}
+	return txt;
+}
 
 /**
  * hwaddr_aton - Convert ASCII string to MAC address (colon-delimited format)
@@ -44,22 +58,39 @@ int hex2byte(const char *hex)
  */
 int hwaddr_aton(const char *txt, u8 *addr)
 {
-	int i;
+	return hwaddr_parse(txt, addr) ? 0 : -1;
+}
 
-	for (i = 0; i < 6; i++) {
-		int a, b;
+/**
+ * hwaddr_masked_aton - Convert ASCII string with optional mask to MAC address (colon-delimited format)
+ * @txt: MAC address with optional mask as a string (e.g., "00:11:22:33:44:55/FF:FF:FF:FF:00:00")
+ * @addr: Buffer for the MAC address (ETH_ALEN = 6 bytes)
+ * @mask: Buffer for the MAC address mask (ETH_ALEN = 6 bytes)
+ * @maskable: Flag to indicate whether a mask is allowed
+ * Returns: 0 on success, -1 on failure (e.g., string not a MAC address)
+ */
+int hwaddr_masked_aton(const char *txt, u8 *addr, u8 *mask, u8 maskable)
+{
+	const char *r;
+	/* parse address part */
+	r = hwaddr_parse(txt, addr);
+	if (!r)
+		return -1;
 
-		a = hex2num(*txt++);
-		if (a < 0)
+	/* check for optional mask */
+	if (! *r || isspace(*r)) {
+		/* no mask specified, assume default */
+		os_memset(mask, 0xFF, ETH_ALEN);
+	} else if (maskable && *r == '/') {
+		/* mask specified and allowed */
+		r = hwaddr_parse(r+1, mask);
+		/* parser error? */
+		if (!r)
 			return -1;
-		b = hex2num(*txt++);
-		if (b < 0)
-			return -1;
-		*addr++ = (a << 4) | b;
-		if (i < 5 && *txt++ != ':')
-			return -1;
+	} else {
+		/* mask specified but not allowed or trailing garbage */
+		return -1;
 	}
-
 	return 0;
 }
 
@@ -143,6 +174,34 @@ int hexstr2bin(const char *hex, u8 *buf, size_t len)
 	return 0;
 }
 
+static char *hwaddr_txt(char *buf, u8 *addr) {
+	size_t i;
+	for (i = 0; i < ETH_ALEN; i++) {
+		buf += sprintf(buf, "%02x", addr[i]);
+		if (i < ETH_ALEN-1)
+			*buf++ = ':';
+	}
+	return buf;
+}
+
+size_t hwaddr_mask_txt(char *buf, u8 *addr, u8 *mask) {
+	size_t i;
+	char *pos = buf;
+	int print_mask = 0;
+	for (i = 0; i < ETH_ALEN; i++) {
+		if (mask[i] != 0xFF) {
+			print_mask = 1;
+			break;
+		}
+	}
+	pos = hwaddr_txt(pos, addr);
+	if (print_mask) {
+		*pos++ = '/';
+		pos = hwaddr_txt(pos, mask);
+	}
+	*pos = '\0';
+	return pos - buf;
+}
 
 /**
  * inc_byte_array - Increment arbitrary length byte array by one

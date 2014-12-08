@@ -697,11 +697,22 @@ static int bss_is_ess(struct wpa_bss *bss)
 		IEEE80211_CAP_ESS);
 }
 
+static int match_mac_mask(u8 *addrA, u8 *addrB, u8 *mask) {
+	size_t i;
+	for (i = 0; i < ETH_ALEN; i++) {
+		if ((addrA[i] & mask[i]) != (addrB[i] & mask[i])) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
 static int addr_in_list(u8 *addr, u8 *list, size_t num) {
 	size_t i;
 	for (i = 0; i < num; i++) {
-		u8 *a = list + (i*ETH_ALEN);
-		if (os_memcmp(a, addr, ETH_ALEN) == 0) {
+		u8 *a = list + (i*ETH_ALEN*2);
+		u8 *m = list + (i*ETH_ALEN*2) + ETH_ALEN;
+		if (match_mac_mask(a, addr, m)) {
 			return 1;
 		}
 	}
