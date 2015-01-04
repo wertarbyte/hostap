@@ -1033,7 +1033,8 @@ static int wpa_supplicant_validate_ie(struct wpa_sm *sm,
 	}
 
 	if ((ie->wpa_ie && sm->ap_wpa_ie &&
-	     !buf_eq(ie->wpa_ie, ie->wpa_ie_len, sm->ap_wpa_ie, sm->ap_wpa_ie_len)) ||
+	     !buf_eq(ie->wpa_ie, ie->wpa_ie_len,
+	             sm->ap_wpa_ie, sm->ap_wpa_ie_len)) ||
 	    (ie->rsn_ie && sm->ap_rsn_ie &&
 	     wpa_compare_rsn_ie(wpa_key_mgmt_ft(sm->key_mgmt),
 				sm->ap_rsn_ie, sm->ap_rsn_ie_len,

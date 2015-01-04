@@ -1339,7 +1339,8 @@ static int hostapd_wps_probe_req_rx(void *ctx, const u8 *addr, const u8 *da,
 	}
 
 	if (elems.ssid && elems.ssid_len > 0 &&
-	    !buf_eq(elems.ssid, elems.ssid_len, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len))
+	    !buf_eq(elems.ssid, elems.ssid_len,
+	            hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len))
 		return 0; /* Not for us */
 
 	wps_ie = ieee802_11_vendor_ie_concat(ie, ie_len, WPS_DEV_OUI_WFA);
@@ -1353,7 +1354,8 @@ static int hostapd_wps_probe_req_rx(void *ctx, const u8 *addr, const u8 *da,
 	if (wpabuf_len(wps_ie) > 0) {
 		int p2p_wildcard = 0;
 #ifdef CONFIG_P2P
-		if (elems.ssid && buf_eq(elems.ssid, elems.ssid_len, P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN))
+		if (elems.ssid && buf_eq(elems.ssid, elems.ssid_len,
+		                         P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN))
 			p2p_wildcard = 1;
 #endif /* CONFIG_P2P */
 		wps_registrar_probe_req_rx(hapd->wps->registrar, addr, wps_ie,

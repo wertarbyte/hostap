@@ -346,7 +346,9 @@ static void eap_gpsk_process_gpsk_2(struct eap_sm *sm,
 		eap_gpsk_state(data, FAILURE);
 		return;
 	}
-	if (!buf_eq(pos, alen, data->csuite_list, data->csuite_count * sizeof(struct eap_gpsk_csuite))) {
+	if (!buf_eq(pos, alen,
+	            data->csuite_list,
+	            data->csuite_count * sizeof(struct eap_gpsk_csuite))) {
 		wpa_printf(MSG_DEBUG, "EAP-GPSK: CSuite_List in GPSK-1 and "
 			   "GPSK-2 did not match");
 		eap_gpsk_state(data, FAILURE);

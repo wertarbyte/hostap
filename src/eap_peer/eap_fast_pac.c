@@ -73,7 +73,8 @@ struct eap_fast_pac * eap_fast_get_pac(struct eap_fast_pac *pac_root,
 	struct eap_fast_pac *pac = pac_root;
 
 	while (pac) {
-		if (pac->pac_type == pac_type && buf_eq(pac->a_id, pac->a_id_len, a_id, a_id_len)) {
+		if (pac->pac_type == pac_type &&
+		    buf_eq(pac->a_id, pac->a_id_len, a_id, a_id_len)) {
 			return pac;
 		}
 		pac = pac->next;
@@ -92,7 +93,8 @@ static void eap_fast_remove_pac(struct eap_fast_pac **pac_root,
 	prev = NULL;
 
 	while (pac) {
-		if (pac->pac_type == pac_type && buf_eq(pac->a_id, pac->a_id_len, a_id, a_id_len)) {
+		if (pac->pac_type == pac_type &&
+		    buf_eq(pac->a_id, pac->a_id_len, a_id, a_id_len)) {
 			if (prev == NULL)
 				*pac_root = pac->next;
 			else

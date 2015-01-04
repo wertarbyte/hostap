@@ -516,7 +516,8 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 
 	if (ssid_len == 0)
 		wildcard = 1;
-	if (buf_eq(ssid, ssid_len, hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len))
+	if (buf_eq(ssid, ssid_len,
+	           hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len))
 		return EXACT_SSID_MATCH;
 
 	if (ssid_list == NULL)
@@ -529,7 +530,8 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 			break;
 		if (pos[1] == 0)
 			wildcard = 1;
-		if (buf_eq(pos + 2, pos[1], hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len))
+		if (buf_eq(pos + 2, pos[1],
+		           hapd->conf->ssid.ssid, hapd->conf->ssid.ssid_len))
 			return EXACT_SSID_MATCH;
 		pos += 2 + pos[1];
 	}
@@ -636,7 +638,9 @@ void handle_probe_req(struct hostapd_data *hapd,
 	sta = ap_get_sta(hapd, mgmt->sa);
 
 #ifdef CONFIG_P2P
-	if ((hapd->conf->p2p & P2P_GROUP_OWNER) && buf_eq(elems.ssid, elems.ssid_len, P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN)) {
+	if ((hapd->conf->p2p & P2P_GROUP_OWNER) &&
+	    buf_eq(elems.ssid, elems.ssid_len,
+	           P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN)) {
 		/* Process P2P Wildcard SSID like Wildcard SSID */
 		elems.ssid_len = 0;
 	}

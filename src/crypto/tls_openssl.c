@@ -1136,7 +1136,8 @@ static int tls_match_altsubject_component(X509 *cert, int type,
 		gen = sk_GENERAL_NAME_value(ext, i);
 		if (gen->type != type)
 			continue;
-		if (buf_eq(value, os_strlen((char *)gen->d.ia5->data), gen->d.ia5->data, len))
+		if (buf_eq(value, os_strlen((char *)gen->d.ia5->data),
+		           gen->d.ia5->data, len))
 			found++;
 	}
 

@@ -403,7 +403,8 @@ static int run_gcmp(int idx, struct gcmp_test *vector)
 		return 1;
 	}
 
-	if (!buf_eq(plain, plain_len, vector->frame + vector->hdr_len, vector->payload_len)) {
+	if (!buf_eq(plain, plain_len,
+	            vector->frame + vector->hdr_len, vector->payload_len)) {
 		wpa_hexdump(MSG_ERROR, "Decryption result did not match",
 			    plain, plain_len);
 		err++;

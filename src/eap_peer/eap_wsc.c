@@ -162,9 +162,11 @@ static void * eap_wsc_init(struct eap_sm *sm)
 
 	identity = eap_get_config_identity(sm, &identity_len);
 
-	if (identity && buf_eq(identity, identity_len, WSC_ID_REGISTRAR, WSC_ID_REGISTRAR_LEN))
+	if (identity &&
+	    buf_eq(identity, identity_len, WSC_ID_REGISTRAR, WSC_ID_REGISTRAR_LEN))
 		registrar = 1; /* Supplicant is Registrar */
-	else if (identity && buf_eq(identity, identity_len, WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN))
+	else if (identity &&
+	         buf_eq(identity, identity_len, WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN))
 		registrar = 0; /* Supplicant is Enrollee */
 	else {
 		wpa_hexdump_ascii(MSG_INFO, "EAP-WSC: Unexpected identity",

@@ -247,7 +247,8 @@ struct wpa_bss * wpa_bss_get(struct wpa_supplicant *wpa_s, const u8 *bssid,
 	if (!wpa_supplicant_filter_bssid_match(wpa_s, bssid))
 		return NULL;
 	dl_list_for_each(bss, &wpa_s->bss, struct wpa_bss, list) {
-		if (os_memcmp(bss->bssid, bssid, ETH_ALEN) == 0 && buf_eq(bss->ssid, bss->ssid_len, ssid, ssid_len))
+		if (os_memcmp(bss->bssid, bssid, ETH_ALEN) == 0 &&
+		    buf_eq(bss->ssid, bss->ssid_len, ssid, ssid_len))
 			return bss;
 	}
 	return NULL;
@@ -666,7 +667,8 @@ void wpa_bss_update_scan_res(struct wpa_supplicant *wpa_s,
 		return;
 	}
 #endif /* CONFIG_P2P */
-	if (p2p && buf_eq(ssid + 2, ssid[1], P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN))
+	if (p2p &&
+	    buf_eq(ssid + 2, ssid[1], P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN))
 		return; /* Skip P2P listen discovery results here */
 
 	/* TODO: add option for ignoring BSSes we are not interested in
@@ -740,7 +742,8 @@ static int wpa_bss_included_in_scan(const struct wpa_bss *bss,
 		for (i = 0; i < info->num_ssids; i++) {
 			const struct wpa_driver_scan_ssid *s = &info->ssids[i];
 			if ((s->ssid == NULL || s->ssid_len == 0) ||
-			    buf_eq(s->ssid, s->ssid_len, bss->ssid, bss->ssid_len)) {
+			    buf_eq(s->ssid, s->ssid_len,
+			           bss->ssid, bss->ssid_len)) {
 				found = 1;
 				break;
 			}

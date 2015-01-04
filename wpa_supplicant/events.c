@@ -844,8 +844,8 @@ static struct wpa_ssid * wpa_scan_res_match(struct wpa_supplicant *wpa_s,
 		    os_memcmp(bss->bssid, ssid->bssid, ETH_ALEN) == 0)
 			check_ssid = 0;
 
-		if (check_ssid &&
-		    !buf_eq(bss->ssid, bss->ssid_len, ssid->ssid, ssid->ssid_len)) {
+		if (check_ssid && !buf_eq(bss->ssid, bss->ssid_len,
+		                          ssid->ssid, ssid->ssid_len)) {
 			wpa_dbg(wpa_s, MSG_DEBUG, "   skip - SSID mismatch");
 			continue;
 		}

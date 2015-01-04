@@ -1015,7 +1015,8 @@ static int wpas_p2p_store_persistent_group(struct wpa_supplicant *wpa_s,
 	wpa_printf(MSG_DEBUG, "P2P: Storing credentials for a persistent "
 		   "group (GO Dev Addr " MACSTR ")", MAC2STR(go_dev_addr));
 	for (s = wpa_s->conf->ssid; s; s = s->next) {
-		if (s->disabled == 2 && os_memcmp(go_dev_addr, s->bssid, ETH_ALEN) == 0 && buf_eq(ssid->ssid, s->ssid_len, s->ssid, ssid->ssid_len))
+		if (s->disabled == 2 && os_memcmp(go_dev_addr, s->bssid, ETH_ALEN) == 0 &&
+		    buf_eq(ssid->ssid, s->ssid_len, s->ssid, ssid->ssid_len))
 			break;
 	}
 
@@ -2516,7 +2517,8 @@ wpas_p2p_service_get_bonjour(struct wpa_supplicant *wpa_s,
 	len = wpabuf_len(query);
 	dl_list_for_each(bsrv, &wpa_s->global->p2p_srv_bonjour,
 			 struct p2p_srv_bonjour, list) {
-		if (buf_eq(wpabuf_head(query), len, wpabuf_head(bsrv->query), wpabuf_len(bsrv->query)))
+		if (buf_eq(wpabuf_head(query), len,
+		           wpabuf_head(bsrv->query), wpabuf_len(bsrv->query)))
 			return bsrv;
 	}
 	return NULL;
@@ -3631,7 +3633,9 @@ static void wpas_prov_disc_req(void *ctx, const u8 *peer, u16 config_methods,
 		for (group = wpa_s->global->ifaces; group; group = group->next)
 		{
 			struct wpa_ssid *s = group->current_ssid;
-			if (s != NULL && s->mode == WPAS_MODE_P2P_GO && buf_eq(group_id + ETH_ALEN, group_id_len - ETH_ALEN, s->ssid, s->ssid_len))
+			if (s != NULL && s->mode == WPAS_MODE_P2P_GO &&
+			    buf_eq(group_id + ETH_ALEN, group_id_len - ETH_ALEN,
+			           s->ssid, s->ssid_len))
 				break;
 		}
 	}
@@ -3872,7 +3876,8 @@ static u8 wpas_invitation_process(void *ctx, const u8 *sa, const u8 *bssid,
 		return P2P_SC_FAIL_INFO_CURRENTLY_UNAVAILABLE;
 
 	for (s = wpa_s->conf->ssid; s; s = s->next) {
-		if (s->disabled == 2 && os_memcmp(s->bssid, go_dev_addr, ETH_ALEN) == 0 && buf_eq(ssid, s->ssid_len, s->ssid, ssid_len))
+		if (s->disabled == 2 && os_memcmp(s->bssid, go_dev_addr, ETH_ALEN) == 0 &&
+		    buf_eq(ssid, s->ssid_len, s->ssid, ssid_len))
 			break;
 	}
 
@@ -3961,7 +3966,8 @@ static void wpas_invitation_received(void *ctx, const u8 *sa, const u8 *bssid,
 	struct wpa_ssid *s;
 
 	for (s = wpa_s->conf->ssid; s; s = s->next) {
-		if (s->disabled == 2 && buf_eq(ssid, s->ssid_len, s->ssid, ssid_len))
+		if (s->disabled == 2 &&
+		    buf_eq(ssid, s->ssid_len, s->ssid, ssid_len))
 			break;
 	}
 

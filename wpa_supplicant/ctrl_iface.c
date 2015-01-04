@@ -2438,7 +2438,8 @@ static int wpa_supplicant_ctrl_iface_scan_result(
 	p2p = wpa_bss_get_vendor_ie(bss, P2P_IE_VENDOR_TYPE);
 	if (!p2p)
 		p2p = wpa_bss_get_vendor_ie_beacon(bss, P2P_IE_VENDOR_TYPE);
-	if (p2p && buf_eq(bss->ssid, bss->ssid_len, P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN))
+	if (p2p && buf_eq(bss->ssid, bss->ssid_len,
+	                  P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN))
 		return 0; /* Do not show P2P listen discovery results here */
 
 	pos = buf;

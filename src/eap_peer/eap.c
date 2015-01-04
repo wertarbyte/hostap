@@ -2899,7 +2899,8 @@ void eap_invalidate_cached_session(struct eap_sm *sm)
 
 int eap_is_wps_pbc_enrollee(struct eap_peer_config *conf)
 {
-	if (!buf_eq(conf->identity, conf->identity_len, WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN))
+	if (!buf_eq(conf->identity, conf->identity_len,
+	            WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN))
 		return 0; /* Not a WPS Enrollee */
 
 	if (conf->phase1 == NULL || os_strstr(conf->phase1, "pbc=1") == NULL)
@@ -2911,7 +2912,8 @@ int eap_is_wps_pbc_enrollee(struct eap_peer_config *conf)
 
 int eap_is_wps_pin_enrollee(struct eap_peer_config *conf)
 {
-	if (!buf_eq(conf->identity, conf->identity_len, WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN))
+	if (!buf_eq(conf->identity, conf->identity_len,
+	            WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN))
 		return 0; /* Not a WPS Enrollee */
 
 	if (conf->phase1 == NULL || os_strstr(conf->phase1, "pin=") == NULL)

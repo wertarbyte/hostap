@@ -220,7 +220,9 @@ hostapd_get_eap_user(struct hostapd_data *hapd, const u8 *identity,
 	struct hostapd_eap_user *user = conf->eap_user;
 
 #ifdef CONFIG_WPS
-	if (conf->wps_state && buf_eq(identity, identity_len, WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN)) {
+	if (conf->wps_state &&
+	    buf_eq(identity, identity_len,
+	           WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN)) {
 		static struct hostapd_eap_user wsc_enrollee;
 		os_memset(&wsc_enrollee, 0, sizeof(wsc_enrollee));
 		wsc_enrollee.methods[0].method = eap_server_get_type(
@@ -228,7 +230,9 @@ hostapd_get_eap_user(struct hostapd_data *hapd, const u8 *identity,
 		return &wsc_enrollee;
 	}
 
-	if (conf->wps_state && buf_eq(identity, identity_len, WSC_ID_REGISTRAR, WSC_ID_REGISTRAR_LEN)) {
+	if (conf->wps_state &&
+	    buf_eq(identity, identity_len,
+	           WSC_ID_REGISTRAR, WSC_ID_REGISTRAR_LEN)) {
 		static struct hostapd_eap_user wsc_registrar;
 		os_memset(&wsc_registrar, 0, sizeof(wsc_registrar));
 		wsc_registrar.methods[0].method = eap_server_get_type(
@@ -254,7 +258,9 @@ hostapd_get_eap_user(struct hostapd_data *hapd, const u8 *identity,
 			break;
 		}
 
-		if (user->phase2 == !!phase2 && buf_eq(user->identity, user->identity_len, identity, identity_len))
+		if (user->phase2 == !!phase2 &&
+		    buf_eq(user->identity, user->identity_len,
+		           identity, identity_len))
 			break;
 		user = user->next;
 	}

@@ -1878,8 +1878,10 @@ static void ieee802_1x_eapol_send(void *ctx, void *sta_ctx, u8 type,
 
 		identity = eap_get_identity(sm->eap, &identity_len);
 		if (identity &&
-		    (buf_eq(identity, identity_len, WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN) ||
-		     buf_eq(identity, identity_len, WSC_ID_REGISTRAR, WSC_ID_REGISTRAR_LEN))) {
+		    (buf_eq(identity, identity_len,
+		            WSC_ID_ENROLLEE, WSC_ID_ENROLLEE_LEN) ||
+		     buf_eq(identity, identity_len,
+		            WSC_ID_REGISTRAR, WSC_ID_REGISTRAR_LEN))) {
 			wpa_printf(MSG_DEBUG, "WPS: WLAN_STA_MAYBE_WPS -> "
 				   "WLAN_STA_WPS");
 			sta->flags |= WLAN_STA_WPS;

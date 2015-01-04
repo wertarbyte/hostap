@@ -592,10 +592,9 @@ static void wpa_set_scan_ssids(struct wpa_supplicant *wpa_s,
 			continue;
 
 		for (j = 0; j < params->num_ssids; j++) {
-			if (params->ssids[j].ssid_len == ssid->ssid_len &&
-			    params->ssids[j].ssid &&
-			    os_memcmp(params->ssids[j].ssid, ssid->ssid,
-				      ssid->ssid_len) == 0)
+			if (params->ssids[j].ssid &&
+			    buf_eq(params->ssids[j].ssid, params->ssids[j].ssid_len,
+			           ssid->ssid, ssid->ssid_len))
 				break;
 		}
 		if (j < params->num_ssids)

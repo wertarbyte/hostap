@@ -103,7 +103,8 @@ static int tls_process_server_hello(struct tlsv1_client *conn, u8 ct,
 		goto decode_error;
 	if (end - pos < 1 + *pos || *pos > TLS_SESSION_ID_MAX_LEN)
 		goto decode_error;
-	if (conn->session_id_len && buf_eq(conn->session_id, conn->session_id_len, pos + 1, *pos)) {
+	if (conn->session_id_len &&
+	    buf_eq(conn->session_id, conn->session_id_len, pos + 1, *pos)) {
 		pos += 1 + conn->session_id_len;
 		wpa_printf(MSG_DEBUG, "TLSv1: Resuming old session");
 		conn->session_resumed = 1;

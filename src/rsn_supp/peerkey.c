@@ -784,7 +784,8 @@ static void wpa_supplicant_process_stk_2_of_4(struct wpa_sm *sm,
 		return;
 	}
 
-	if (!buf_eq(kde.rsn_ie, kde.rsn_ie_len, peerkey->rsnie_p, peerkey->rsnie_p_len)) {
+	if (!buf_eq(kde.rsn_ie, kde.rsn_ie_len,
+	            peerkey->rsnie_p, peerkey->rsnie_p_len)) {
 		wpa_printf(MSG_INFO, "RSN: Peer RSN IE in SMK and STK "
 			   "handshakes did not match");
 		wpa_hexdump(MSG_DEBUG, "RSN: Peer RSN IE in SMK handshake",
@@ -826,7 +827,8 @@ static void wpa_supplicant_process_stk_3_of_4(struct wpa_sm *sm,
 		return;
 	}
 
-	if (!buf_eq(kde.rsn_ie, kde.rsn_ie_len, peerkey->rsnie_i, peerkey->rsnie_i_len)) {
+	if (!buf_eq(kde.rsn_ie, kde.rsn_ie_len,
+	            peerkey->rsnie_i, peerkey->rsnie_i_len)) {
 		wpa_printf(MSG_INFO, "RSN: Initiator RSN IE in SMK and STK "
 			   "handshakes did not match");
 		wpa_hexdump(MSG_DEBUG, "RSN: Initiator RSN IE in SMK "

@@ -2871,7 +2871,8 @@ struct wpa_ssid * wpa_supplicant_get_ssid(struct wpa_supplicant *wpa_s)
 	entry = wpa_s->conf->ssid;
 	while (entry) {
 		if (!wpas_network_disabled(wpa_s, entry) &&
-		    (buf_eq(ssid, ssid_len, entry->ssid, entry->ssid_len) || wired) &&
+		    (buf_eq(ssid, ssid_len, entry->ssid, entry->ssid_len) ||
+		     wired) &&
 		    (!entry->bssid_set ||
 		     os_memcmp(bssid, entry->bssid, ETH_ALEN) == 0))
 			return entry;
