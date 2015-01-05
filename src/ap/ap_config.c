@@ -18,6 +18,7 @@
 #include "wpa_auth.h"
 #include "sta_info.h"
 #include "ap_config.h"
+#include "hostapd.h"
 
 
 static void hostapd_config_free_vlan(struct hostapd_bss_config *bss)
@@ -319,10 +320,8 @@ static int hostapd_derive_psk(struct hostapd_ssid *ssid)
 }
 
 
-int hostapd_setup_wpa_psk(struct hostapd_bss_config *conf)
+static int hostapd_setup_wpa_ssid_psk(struct hostapd_ssid *ssid, struct hostapd_bss_config *conf)
 {
-	struct hostapd_ssid *ssid = &conf->ssid;
-
 	if (ssid->wpa_passphrase != NULL) {
 		if (ssid->wpa_psk != NULL) {
 			wpa_printf(MSG_DEBUG, "Using pre-configured WPA PSK "
@@ -343,6 +342,11 @@ int hostapd_setup_wpa_psk(struct hostapd_bss_config *conf)
 	}
 
 	return 0;
+}
+
+int hostapd_setup_wpa_psk(struct hostapd_bss_config *conf)
+{
+	return hostapd_setup_wpa_ssid_psk(&conf->ssid, conf);
 }
 
 
@@ -693,12 +697,17 @@ const char * hostapd_get_vlan_id_ifname(struct hostapd_vlan *vlan, int vlan_id)
 }
 
 
-const u8 * hostapd_get_psk(const struct hostapd_bss_config *conf,
+const u8 * hostapd_get_psk(struct hostapd_data *hapd,
 			   const u8 *addr, const u8 *p2p_dev_addr,
 			   const u8 *prev_psk)
 {
 	struct hostapd_wpa_psk *psk;
 	int next_ok = prev_psk == NULL;
+	struct hostapd_bss_config *conf = hapd->conf;
+	struct hostapd_ssid *ssid = &conf->ssid;
+	struct sta_info *sta = ap_get_sta(hapd, addr);
+	if (sta && sta->ssid)
+		ssid = sta->ssid;
 
 	if (p2p_dev_addr && !is_zero_ether_addr(p2p_dev_addr)) {
 		wpa_printf(MSG_DEBUG, "Searching a PSK for " MACSTR
@@ -711,7 +720,7 @@ const u8 * hostapd_get_psk(const struct hostapd_bss_config *conf,
 			   MAC2STR(addr), prev_psk);
 	}
 
-	for (psk = conf->ssid.wpa_psk; psk != NULL; psk = psk->next) {
+	for (psk = ssid->wpa_psk; psk != NULL; psk = psk->next) {
 		if (next_ok &&
 		    (psk->group ||
 		     (addr && os_memcmp(psk->addr, addr, ETH_ALEN) == 0) ||
@@ -1002,3 +1011,51 @@ void hostapd_set_security_params(struct hostapd_bss_config *bss,
 		}
 	}
 }
+
+#ifdef CONFIG_MULTI_SSID
+/**
+ * hostapd_clone_twin_ssid - Create a copy of an SSID struct
+ * @bss: The BSS to use as template for the cloning
+ * @ssid: The SSID identifier to use for the twin network
+ * @ssid_len: The length of the SSID identifier to be used
+ * Returns: The cloned hostapd_ssid struct.
+ *
+ * Create an independent copy of the hostapd_ssid struct used
+ * by the BSS instance and substitute the identifier; if a WPA
+ * passphrase is used, the new keys are derived using the new
+ * network identifier.
+ */
+struct hostapd_ssid * hostapd_clone_twin_ssid(struct hostapd_bss_config *bss,
+                                             const u8 *ssid, size_t ssid_len) {
+	/* clone ssid struct */
+	struct hostapd_ssid *orig = &bss->ssid;
+	struct hostapd_ssid *clone = os_zalloc(sizeof(*orig));
+	if (clone == NULL)
+		return NULL;
+	os_memcpy(clone, orig, sizeof(*orig));
+	clone->origin = orig;
+	/* insert new SSID */
+	os_memcpy(&clone->ssid, ssid, ssid_len);
+	clone->ssid_len = ssid_len;
+	/* clear and reinitialize WPA keys */
+	clone->wpa_psk = NULL;
+	hostapd_setup_wpa_ssid_psk(clone, bss);
+	return clone;
+}
+
+/**
+ * hostapd_free_cloned_ssid - Destroy a cloned SSID structure
+ * @ssid: The SSID structure to free
+ *
+ * Free the memory allocated for the hostapd_ssid structure
+ * and its contained WPA keys if the instance has been cloned
+ * instead of originating from the BSS config.
+ */
+void hostapd_free_cloned_ssid(struct hostapd_ssid *ssid) {
+	/* is this ssid a clone? */
+	if (!ssid || !ssid->origin)
+		return;
+	hostapd_config_clear_wpa_psk(&ssid->wpa_psk);
+	os_free(ssid);
+}
+#endif /* CONFIG_MULTI_SSID */

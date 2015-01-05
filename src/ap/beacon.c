@@ -821,8 +821,16 @@ void handle_probe_req(struct hostapd_data *hapd,
 #endif /* CONFIG_MULTI_SSID */
 
 	if (res != NO_SSID_MATCH) {
-		if (sta)
-			sta->ssid_probe = &hapd->conf->ssid;
+		if (sta) {
+			#ifdef CONFIG_MULTI_SSID
+			hostapd_free_cloned_ssid(sta->ssid_probe);
+			sta->ssid_probe = NULL;
+			if (res == CATCHALL_SSID_MATCH)
+				sta->ssid_probe = hostapd_clone_twin_ssid(hapd->conf, ssid, ssid_len);
+			else
+			#endif /* CONFIG_MULTI_SSID */
+				sta->ssid_probe = &hapd->conf->ssid;
+		}
 	} else {
 		if (!(mgmt->da[0] & 0x01)) {
 			wpa_printf(MSG_MSGDUMP, "Probe Request from " MACSTR

@@ -1275,6 +1275,9 @@ static u16 check_ssid(struct hostapd_data *hapd, struct sta_info *sta,
 			       HOSTAPD_LEVEL_INFO,
 			       "Station associating with catchall network, requested SSID "
 			       "'%s'", wpa_ssid_txt(ssid_ie, ssid_ie_len));
+		sta->ssid = hostapd_clone_twin_ssid(hapd->conf, ssid_ie, ssid_ie_len);
+		if (sta->ssid == NULL)
+			return WLAN_STATUS_UNSPECIFIED_FAILURE;
 		return WLAN_STATUS_SUCCESS;
 	}
 #endif /* CONFIG_MULTI_SSID */
@@ -2521,8 +2524,8 @@ static void handle_assoc_cb(struct hostapd_data *hapd,
 
 	hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE80211,
 		       HOSTAPD_LEVEL_INFO,
-		       "associated (aid %d)",
-		       sta->aid);
+		       "associated (aid %d) [%s]",
+		       sta->aid, wpa_ssid_txt(sta->ssid->ssid, sta->ssid->ssid_len));
 
 	if (sta->flags & WLAN_STA_ASSOC)
 		new_assoc = 0;

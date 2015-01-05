@@ -319,6 +319,12 @@ void ap_free_sta(struct hostapd_data *hapd, struct sta_info *sta)
 	os_free(sta->sae);
 #endif /* CONFIG_SAE */
 
+#ifdef CONFIG_MULTI_SSID
+	/* free cloned SSIDs */
+	hostapd_free_cloned_ssid(sta->ssid);
+	hostapd_free_cloned_ssid(sta->ssid_probe);
+#endif /* CONFIG_MULTI_SSID */
+
 	os_free(sta);
 }
 

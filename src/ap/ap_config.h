@@ -17,6 +17,7 @@
 #include "common/ieee802_11_common.h"
 #include "wps/wps.h"
 #include "fst/fst.h"
+#include "sta_info.h"
 
 /**
  * mesh_conf - local MBSS state and settings
@@ -110,6 +111,10 @@ struct hostapd_ssid {
 #ifdef CONFIG_FULL_DYNAMIC_VLAN
 	char *vlan_tagged_interface;
 #endif /* CONFIG_FULL_DYNAMIC_VLAN */
+
+#ifdef CONFIG_MULTI_SSID
+	struct hostapd_ssid *origin;
+#endif /* CONFIG_MULTI_SSID */
 };
 
 
@@ -694,7 +699,7 @@ void hostapd_config_free(struct hostapd_config *conf);
 int hostapd_maclist_found(struct mac_acl_entry *list, int num_entries,
 			  const u8 *addr, int *vlan_id);
 int hostapd_rate_found(int *list, int rate);
-const u8 * hostapd_get_psk(const struct hostapd_bss_config *conf,
+const u8 * hostapd_get_psk(struct hostapd_data *hapd,
 			   const u8 *addr, const u8 *p2p_dev_addr,
 			   const u8 *prev_psk);
 int hostapd_setup_wpa_psk(struct hostapd_bss_config *conf);
@@ -707,4 +712,9 @@ int hostapd_config_check(struct hostapd_config *conf, int full_config);
 void hostapd_set_security_params(struct hostapd_bss_config *bss,
 				 int full_config);
 
+#ifdef CONFIG_MULTI_SSID
+struct hostapd_ssid *hostapd_clone_twin_ssid(struct hostapd_bss_config *bss,
+                                             const u8 *ssid, size_t ssid_len);
+void hostapd_free_cloned_ssid(struct hostapd_ssid *ssid);
+#endif /* CONFIG_MULTI_SSID */
 #endif /* HOSTAPD_CONFIG_H */

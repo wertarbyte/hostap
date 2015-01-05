@@ -236,7 +236,7 @@ static const u8 * hostapd_wpa_auth_get_psk(void *ctx, const u8 *addr,
 	}
 #endif /* CONFIG_SAE */
 
-	psk = hostapd_get_psk(hapd->conf, addr, p2p_dev_addr, prev_psk);
+	psk = hostapd_get_psk(hapd, addr, p2p_dev_addr, prev_psk);
 	/*
 	 * This is about to iterate over all psks, prev_psk gives the last
 	 * returned psk which should not be returned again.
