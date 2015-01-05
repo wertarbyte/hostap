@@ -35,6 +35,23 @@ static const char * mlme_auth_alg_str(int alg)
 }
 #endif /* CONFIG_NO_HOSTAPD_LOGGER */
 
+static void write_assoc_log(struct hostapd_data *hapd, struct sta_info *sta, char op) {
+	struct os_time now;
+	int fd = hapd->assoc_log_fd;
+	if (fd >= 0) {
+		os_get_time(&now);
+		char msg[100];
+		sprintf(msg,
+		        "%lu\t" MACSTR "\t%c\t%s\t" MACSTR "\t'%s'\n",
+		        now.sec,
+		        MAC2STR(sta->addr),
+			op,
+		        hapd->conf->iface,
+		        MAC2STR(hapd->own_addr),
+		        wpa_ssid_txt(sta->ssid->ssid, sta->ssid->ssid_len));
+		write(fd, msg, strlen(msg));
+	}
+}
 
 /**
  * mlme_authenticate_indication - Report the establishment of an authentication
@@ -105,6 +122,9 @@ void mlme_associate_indication(struct hostapd_data *hapd, struct sta_info *sta)
 		       HOSTAPD_LEVEL_DEBUG,
 		       "MLME-ASSOCIATE.indication(" MACSTR ")",
 		       MAC2STR(sta->addr));
+
+	write_assoc_log(hapd, sta, '+');
+
 	if (sta->auth_alg != WLAN_AUTH_FT)
 		mlme_deletekeys_request(hapd, sta);
 	ap_sta_clear_disconnect_timeouts(hapd, sta);
@@ -130,6 +150,9 @@ void mlme_reassociate_indication(struct hostapd_data *hapd,
 		       HOSTAPD_LEVEL_DEBUG,
 		       "MLME-REASSOCIATE.indication(" MACSTR ")",
 		       MAC2STR(sta->addr));
+
+	write_assoc_log(hapd, sta, '@');
+
 	if (sta->auth_alg != WLAN_AUTH_FT)
 		mlme_deletekeys_request(hapd, sta);
 	ap_sta_clear_disconnect_timeouts(hapd, sta);
@@ -155,6 +178,9 @@ void mlme_disassociate_indication(struct hostapd_data *hapd,
 		       HOSTAPD_LEVEL_DEBUG,
 		       "MLME-DISASSOCIATE.indication(" MACSTR ", %d)",
 		       MAC2STR(sta->addr), reason_code);
+
+	write_assoc_log(hapd, sta, '-');
+
 	mlme_deletekeys_request(hapd, sta);
 }
 

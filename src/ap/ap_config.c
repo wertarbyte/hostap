@@ -6,6 +6,8 @@
  * See README for more details.
  */
 
+#include <fcntl.h>
+
 #include "utils/includes.h"
 
 #include "utils/common.h"
@@ -18,6 +20,7 @@
 #include "wpa_auth.h"
 #include "sta_info.h"
 #include "ap_config.h"
+#include "hostapd.h"
 
 
 static void hostapd_config_free_vlan(struct hostapd_bss_config *bss)
@@ -208,6 +211,30 @@ int hostapd_mac_comp_empty(const void *a)
 	return os_memcmp(a, empty, sizeof(macaddr));
 }
 
+int hostapd_open_assoc_log(struct hostapd_data *bss)
+{
+	char *alog = bss->conf->assoc_log_file;
+	if (alog) {
+		int fd = open(alog, O_WRONLY | O_APPEND | O_CREAT | O_NOFOLLOW, 0600);
+		if (fd < 0) {
+			wpa_printf(MSG_ERROR, "Error opening association log file '%s'\n", alog);
+			return -1;
+		}
+		bss->assoc_log_fd = fd;
+		return 1;
+	} else {
+		bss->assoc_log_fd = -1;
+	}
+	return 0;
+}
+
+void hostapd_close_assoc_log(struct hostapd_data *bss)
+{
+	if (bss->assoc_log_fd != -1) {
+		close(bss->assoc_log_fd);
+		bss->assoc_log_fd = -1;
+	}
+}
 
 static int hostapd_config_read_wpa_psk(const char *fname,
 				       struct hostapd_ssid *ssid)

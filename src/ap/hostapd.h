@@ -120,6 +120,8 @@ struct hostapd_data {
 #define STA_HASH(sta) (sta[5])
 	struct sta_info *sta_hash[STA_HASH_SIZE];
 
+	int assoc_log_fd;
+
 	/*
 	 * Bitfield for indicating which AIDs are allocated. Only AID values
 	 * 1-2007 are used and as such, the bit at index 0 corresponds to AID

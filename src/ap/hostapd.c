@@ -77,6 +77,10 @@ static void hostapd_reload_bss(struct hostapd_data *hapd)
 	radius_client_reconfig(hapd->radius, hapd->conf->radius);
 #endif /* CONFIG_NO_RADIUS */
 
+	/* close and reopen assoc_log */
+	hostapd_close_assoc_log(hapd);
+	hostapd_open_assoc_log(hapd);
+
 	ssid = &hapd->conf->ssid;
 	if (!ssid->wpa_psk_set && ssid->wpa_psk && !ssid->wpa_psk->next &&
 	    ssid->wpa_passphrase_set && ssid->wpa_passphrase) {

@@ -266,6 +266,12 @@ hostapd_interface_init(struct hapd_interfaces *interfaces,
 		return NULL;
 	}
 
+	for (k = 0; k < iface->conf->num_bss; k++) {
+		int r = hostapd_open_assoc_log(iface->bss[k]);
+		if (r < 0)
+			return NULL;
+	}
+
 	return iface;
 }
 

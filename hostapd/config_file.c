@@ -2025,6 +2025,9 @@ static int hostapd_config_fill(struct hostapd_config *conf,
 		bss->logger_syslog = atoi(pos);
 	} else if (os_strcmp(buf, "logger_stdout") == 0) {
 		bss->logger_stdout = atoi(pos);
+	} else if (os_strcmp(buf, "assoc_log_file") == 0) {
+		os_free(bss->assoc_log_file);
+		bss->assoc_log_file = os_strdup(pos);
 	} else if (os_strcmp(buf, "dump_file") == 0) {
 		wpa_printf(MSG_INFO, "Line %d: DEPRECATED: 'dump_file' configuration variable is not used anymore",
 			   line);

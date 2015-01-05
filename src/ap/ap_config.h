@@ -227,6 +227,8 @@ struct hostapd_bss_config {
 	unsigned int logger_syslog; /* module bitfield */
 	unsigned int logger_stdout; /* module bitfield */
 
+	char *assoc_log_file;
+
 	int max_num_sta; /* maximum number of STAs in station table */
 
 	int dtim_period;
@@ -678,6 +680,9 @@ struct hostapd_config {
 #endif /* CONFIG_ACS */
 };
 
+struct hostapd_data;
+int hostapd_open_assoc_log(struct hostapd_data *bss);
+void hostapd_close_assoc_log(struct hostapd_data *bss);
 
 int hostapd_mac_comp(const void *a, const void *b);
 int hostapd_mac_comp_empty(const void *a);
