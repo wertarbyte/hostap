@@ -595,6 +595,17 @@ const char * wpa_ssid_txt(const u8 *ssid, size_t ssid_len)
 	return ssid_txt;
 }
 
+/**
+ * buf_eq - Check two buffers for equality
+ * @buf_a: first buffer
+ * @len_a: Length of first buffer
+ * @buf_b: second buffer
+ * @len_b: Length of second buffer
+ * Returns: 1 on equality, 0 otherwise
+ */
+int buf_eq(const void *buf_a, size_t len_a, const void *buf_b, size_t len_b) {
+	return (len_a == len_b) && (os_memcmp(buf_a, buf_b, len_a) == 0);
+}
 
 void * __hide_aliasing_typecast(void *foo)
 {

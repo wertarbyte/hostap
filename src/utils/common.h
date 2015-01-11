@@ -499,6 +499,8 @@ size_t printf_decode(u8 *buf, size_t maxlen, const char *str);
 
 const char * wpa_ssid_txt(const u8 *ssid, size_t ssid_len);
 
+int buf_eq(const void *buf_a, size_t len_a, const void *buf_b, size_t len_b);
+
 char * wpa_config_parse_string(const char *value, size_t *len);
 int is_hex(const u8 *data, size_t len);
 size_t merge_byte_arrays(u8 *res, size_t res_len,
