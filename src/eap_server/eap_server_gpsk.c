@@ -295,8 +295,7 @@ static void eap_gpsk_process_gpsk_2(struct eap_sm *sm,
 		eap_gpsk_state(data, FAILURE);
 		return;
 	}
-	if (alen != sm->server_id_len ||
-	    os_memcmp(pos, sm->server_id, alen) != 0) {
+	if (!buf_eq(pos, alen, sm->server_id, sm->server_id_len)) {
 		wpa_printf(MSG_DEBUG, "EAP-GPSK: ID_Server in GPSK-1 and "
 			   "GPSK-2 did not match");
 		eap_gpsk_state(data, FAILURE);
@@ -347,8 +346,7 @@ static void eap_gpsk_process_gpsk_2(struct eap_sm *sm,
 		eap_gpsk_state(data, FAILURE);
 		return;
 	}
-	if (alen != data->csuite_count * sizeof(struct eap_gpsk_csuite) ||
-	    os_memcmp(pos, data->csuite_list, alen) != 0) {
+	if (!buf_eq(pos, alen, data->csuite_list, data->csuite_count * sizeof(struct eap_gpsk_csuite))) {
 		wpa_printf(MSG_DEBUG, "EAP-GPSK: CSuite_List in GPSK-1 and "
 			   "GPSK-2 did not match");
 		eap_gpsk_state(data, FAILURE);

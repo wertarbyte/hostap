@@ -247,9 +247,7 @@ struct wpa_bss * wpa_bss_get(struct wpa_supplicant *wpa_s, const u8 *bssid,
 	if (!wpa_supplicant_filter_bssid_match(wpa_s, bssid))
 		return NULL;
 	dl_list_for_each(bss, &wpa_s->bss, struct wpa_bss, list) {
-		if (os_memcmp(bss->bssid, bssid, ETH_ALEN) == 0 &&
-		    bss->ssid_len == ssid_len &&
-		    os_memcmp(bss->ssid, ssid, ssid_len) == 0)
+		if (os_memcmp(bss->bssid, bssid, ETH_ALEN) == 0 && buf_eq(bss->ssid, bss->ssid_len, ssid, ssid_len))
 			return bss;
 	}
 	return NULL;
@@ -300,8 +298,7 @@ static int wpa_bss_known(struct wpa_supplicant *wpa_s, struct wpa_bss *bss)
 	for (ssid = wpa_s->conf->ssid; ssid; ssid = ssid->next) {
 		if (ssid->ssid == NULL || ssid->ssid_len == 0)
 			continue;
-		if (ssid->ssid_len == bss->ssid_len &&
-		    os_memcmp(ssid->ssid, bss->ssid, ssid->ssid_len) == 0)
+		if (buf_eq(ssid->ssid, ssid->ssid_len, bss->ssid, bss->ssid_len))
 			return 1;
 	}
 
@@ -443,8 +440,7 @@ static int are_ies_equal(const struct wpa_bss *old,
 	if (!old_ie || !new_ie)
 		ret = !old_ie && !new_ie;
 	else
-		ret = (old_ie_len == new_ie_len &&
-		       os_memcmp(old_ie, new_ie, old_ie_len) == 0);
+		ret = buf_eq(old_ie, old_ie_len, new_ie, new_ie_len);
 
 	wpabuf_free(old_ie_buff);
 	wpabuf_free(new_ie_buff);
@@ -471,8 +467,7 @@ static u32 wpa_bss_compare_res(const struct wpa_bss *old,
 	if (caps_diff & IEEE80211_CAP_IBSS)
 		changes |= WPA_BSS_MODE_CHANGED_FLAG;
 
-	if (old->ie_len == new->ie_len &&
-	    os_memcmp(old + 1, new + 1, old->ie_len) == 0)
+	if (buf_eq(old + 1, old->ie_len, new + 1, new->ie_len))
 		return changes;
 	changes |= WPA_BSS_IES_CHANGED_FLAG;
 
@@ -671,8 +666,7 @@ void wpa_bss_update_scan_res(struct wpa_supplicant *wpa_s,
 		return;
 	}
 #endif /* CONFIG_P2P */
-	if (p2p && ssid[1] == P2P_WILDCARD_SSID_LEN &&
-	    os_memcmp(ssid + 2, P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN) == 0)
+	if (p2p && buf_eq(ssid + 2, ssid[1], P2P_WILDCARD_SSID, P2P_WILDCARD_SSID_LEN))
 		return; /* Skip P2P listen discovery results here */
 
 	/* TODO: add option for ignoring BSSes we are not interested in
@@ -746,9 +740,7 @@ static int wpa_bss_included_in_scan(const struct wpa_bss *bss,
 		for (i = 0; i < info->num_ssids; i++) {
 			const struct wpa_driver_scan_ssid *s = &info->ssids[i];
 			if ((s->ssid == NULL || s->ssid_len == 0) ||
-			    (s->ssid_len == bss->ssid_len &&
-			     os_memcmp(s->ssid, bss->ssid, bss->ssid_len) ==
-			     0)) {
+			    buf_eq(s->ssid, s->ssid_len, bss->ssid, bss->ssid_len)) {
 				found = 1;
 				break;
 			}

@@ -473,8 +473,7 @@ static int bgscan_learn_bss_match(struct bgscan_learn_data *data,
 	if (ie == NULL)
 		return 0;
 
-	if (data->ssid->ssid_len != ie[1] ||
-	    os_memcmp(data->ssid->ssid, ie + 2, ie[1]) != 0)
+	if (!buf_eq(data->ssid->ssid, data->ssid->ssid_len, ie + 2, ie[1]))
 		return 0; /* SSID mismatch */
 
 	return 1;

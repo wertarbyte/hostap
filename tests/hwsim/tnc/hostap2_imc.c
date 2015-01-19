@@ -149,8 +149,7 @@ TNC_Result TNC_IMC_ReceiveMessage(
 	wpa_hexdump_ascii(MSG_INFO, "IMC(hostap2) message",
 			  message, messageLength);
 
-	if (messageType == 1 && messageLength == 5 &&
-	    os_memcmp(message, "hello", 5) == 0) {
+	if (messageType == 1 && buf_eq(message, messageLength, "hello", 5)) {
 		char *msg = "i'm fine";
 
 		res = send_message(imcID, connectionID, msg, os_strlen(msg), 1);

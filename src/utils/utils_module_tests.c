@@ -51,16 +51,14 @@ static int printf_encode_decode_tests(void)
 		wpa_printf(MSG_INFO, "%d: -> \"%s\"", i, buf);
 
 		binlen = printf_decode(bin, sizeof(bin), buf);
-		if (binlen != test->len ||
-		    os_memcmp(bin, test->data, binlen) != 0) {
+		if (!buf_eq(bin, binlen, test->data, test->len)) {
 			wpa_hexdump(MSG_ERROR, "Error in decoding#1",
 				    bin, binlen);
 			errors++;
 		}
 
 		binlen = printf_decode(bin, sizeof(bin), test->encoded);
-		if (binlen != test->len ||
-		    os_memcmp(bin, test->data, binlen) != 0) {
+		if (!buf_eq(bin, binlen, test->data, test->len)) {
 			wpa_hexdump(MSG_ERROR, "Error in decoding#2",
 				    bin, binlen);
 			errors++;

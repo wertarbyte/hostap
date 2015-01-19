@@ -979,9 +979,7 @@ radius_change_server(struct radius_client_data *radius,
 		       nserv->port);
 
 	if (oserv && oserv != nserv &&
-	    (nserv->shared_secret_len != oserv->shared_secret_len ||
-	     os_memcmp(nserv->shared_secret, oserv->shared_secret,
-		       nserv->shared_secret_len) != 0)) {
+	    !buf_eq(nserv->shared_secret, nserv->shared_secret_len, oserv->shared_secret, oserv->shared_secret_len)) {
 		/* Pending RADIUS packets used different shared secret, so
 		 * they need to be modified. Update accounting message
 		 * authenticators here. Authentication messages are removed

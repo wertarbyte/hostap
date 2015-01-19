@@ -490,8 +490,7 @@ static int macsec_qca_set_current_cipher_suite(void *priv, const u8 *cs,
 {
 	u8 default_cs_id[] = CS_ID_GCM_AES_128;
 
-	if (cs_len != CS_ID_LEN ||
-	    os_memcmp(cs, default_cs_id, cs_len) != 0) {
+	if (!buf_eq(cs, cs_len, default_cs_id, CS_ID_LEN)) {
 		wpa_hexdump(MSG_ERROR, "macsec: NOT supported CipherSuite",
 			    cs, cs_len);
 		return -1;

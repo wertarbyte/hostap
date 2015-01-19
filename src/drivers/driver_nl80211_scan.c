@@ -469,9 +469,7 @@ static int nl80211_scan_filtered(struct wpa_driver_nl80211_data *drv,
 		return 1;
 
 	for (i = 0; i < drv->num_filter_ssids; i++) {
-		if (ssid[1] == drv->filter_ssids[i].ssid_len &&
-		    os_memcmp(ssid + 2, drv->filter_ssids[i].ssid, ssid[1]) ==
-		    0)
+		if (buf_eq(ssid + 2, ssid[1], drv->filter_ssids[i].ssid, drv->filter_ssids[i].ssid_len))
 			return 0;
 	}
 

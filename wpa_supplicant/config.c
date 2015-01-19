@@ -455,8 +455,7 @@ static int wpa_config_parse_psk(const struct parse_data *data,
 		}
 		wpa_hexdump_ascii_key(MSG_MSGDUMP, "PSK (ASCII passphrase)",
 				      (u8 *) value, len);
-		if (ssid->passphrase && os_strlen(ssid->passphrase) == len &&
-		    os_memcmp(ssid->passphrase, value, len) == 0)
+		if (ssid->passphrase && buf_eq(ssid->passphrase, os_strlen(ssid->passphrase), value, len))
 			return 0;
 		ssid->psk_set = 0;
 		str_clear_free(ssid->passphrase);

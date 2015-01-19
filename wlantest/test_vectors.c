@@ -70,8 +70,7 @@ static void test_vector_tkip(void)
 		return;
 	}
 
-	if (plain_len != sizeof(frame) - 24 ||
-	    os_memcmp(plain, frame + 24, plain_len) != 0) {
+	if (!buf_eq(plain, plain_len, frame + 24, sizeof(frame) - 24)) {
 		wpa_hexdump(MSG_ERROR, "Decryption result did not match",
 			    plain, plain_len);
 	}
@@ -126,8 +125,7 @@ static void test_vector_ccmp(void)
 		return;
 	}
 
-	if (plain_len != sizeof(frame) - 24 ||
-	    os_memcmp(plain, frame + 24, plain_len) != 0) {
+	if (!buf_eq(plain, plain_len, frame + 24, sizeof(frame) - 24)) {
 		wpa_hexdump(MSG_ERROR, "Decryption result did not match",
 			    plain, plain_len);
 	}
@@ -212,8 +210,7 @@ static void test_vector_ccmp_mgmt(void)
 		return;
 	}
 
-	if (plain_len != sizeof(frame) - 24 ||
-	    os_memcmp(plain, frame + 24, plain_len) != 0) {
+	if (!buf_eq(plain, plain_len, frame + 24, sizeof(frame) - 24)) {
 		wpa_hexdump(MSG_ERROR, "Decryption result did not match",
 			    plain, plain_len);
 	}
@@ -406,8 +403,7 @@ static int run_gcmp(int idx, struct gcmp_test *vector)
 		return 1;
 	}
 
-	if (plain_len != vector->payload_len ||
-	    os_memcmp(plain, vector->frame + vector->hdr_len, plain_len) != 0) {
+	if (!buf_eq(plain, plain_len, vector->frame + vector->hdr_len, vector->payload_len)) {
 		wpa_hexdump(MSG_ERROR, "Decryption result did not match",
 			    plain, plain_len);
 		err++;
@@ -488,7 +484,7 @@ static int test_vector_gcmp_256(void)
 	}
 
 	wpa_hexdump(MSG_INFO, "Encrypted MPDU (without FCS)", enc, enc_len);
-	if (enc_len != sizeof(encr) || os_memcmp(enc, encr, enc_len) != 0) {
+	if (!buf_eq(enc, enc_len, encr, sizeof(encr))) {
 		wpa_printf(MSG_ERROR, "GCMP-256 test vector mismatch");
 		err++;
 	}
@@ -506,8 +502,7 @@ static int test_vector_gcmp_256(void)
 		return 1;
 	}
 
-	if (plain_len != sizeof(frame) - 26 ||
-	    os_memcmp(plain, frame + 26, plain_len) != 0) {
+	if (!buf_eq(plain, plain_len, frame + 26, sizeof(frame) - 26)) {
 		wpa_hexdump(MSG_ERROR, "Decryption result did not match",
 			    plain, plain_len);
 		err++;
@@ -566,7 +561,7 @@ static int test_vector_ccmp_256(void)
 	}
 
 	wpa_hexdump(MSG_INFO, "Encrypted MPDU (without FCS)", enc, enc_len);
-	if (enc_len != sizeof(encr) || os_memcmp(enc, encr, enc_len) != 0) {
+	if (!buf_eq(enc, enc_len, encr, sizeof(encr))) {
 		wpa_printf(MSG_ERROR, "CCMP-256 test vector mismatch");
 		err++;
 	}
@@ -584,8 +579,7 @@ static int test_vector_ccmp_256(void)
 		return 1;
 	}
 
-	if (plain_len != sizeof(frame) - 24 ||
-	    os_memcmp(plain, frame + 24, plain_len) != 0) {
+	if (!buf_eq(plain, plain_len, frame + 24, sizeof(frame) - 24)) {
 		wpa_hexdump(MSG_ERROR, "Decryption result did not match",
 			    plain, plain_len);
 		err++;
@@ -638,7 +632,7 @@ static int test_vector_bip_gmac_128(void)
 	}
 
 	wpa_hexdump(MSG_INFO, "Protected MPDU (without FCS)", prot, prot_len);
-	if (prot_len != sizeof(res) || os_memcmp(res, prot, prot_len) != 0) {
+	if (!buf_eq(res, prot_len, prot, sizeof(res))) {
 		wpa_printf(MSG_ERROR, "BIP-GMAC-128 test vector mismatch");
 		err++;
 	}
@@ -690,7 +684,7 @@ static int test_vector_bip_gmac_256(void)
 	}
 
 	wpa_hexdump(MSG_INFO, "Protected MPDU (without FCS)", prot, prot_len);
-	if (prot_len != sizeof(res) || os_memcmp(res, prot, prot_len) != 0) {
+	if (!buf_eq(res, prot_len, prot, sizeof(res))) {
 		wpa_printf(MSG_ERROR, "BIP-GMAC-128 test vector mismatch");
 		err++;
 	}

@@ -471,8 +471,7 @@ static const u8 * eap_gpsk_validate_id_server(struct eap_gpsk_data *data,
 		return NULL;
 	}
 
-	if (len != data->id_server_len ||
-	    os_memcmp(pos, data->id_server, len) != 0) {
+	if (!buf_eq(pos, len, data->id_server, data->id_server_len)) {
 		wpa_printf(MSG_INFO, "EAP-GPSK: ID_Server did not match with "
 			   "the one used in GPSK-1");
 		wpa_hexdump_ascii(MSG_DEBUG, "EAP-GPSK: ID_Server in GPSK-1",

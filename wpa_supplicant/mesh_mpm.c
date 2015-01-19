@@ -154,9 +154,7 @@ static Boolean matches_local(struct wpa_supplicant *wpa_s,
 	if (elems->mesh_config_len < 5)
 		return FALSE;
 
-	return (mconf->meshid_len == elems->mesh_id_len &&
-		os_memcmp(mconf->meshid, elems->mesh_id,
-			  elems->mesh_id_len) == 0 &&
+	return (buf_eq(mconf->meshid, mconf->meshid_len, elems->mesh_id, elems->mesh_id_len) &&
 		mconf->mesh_pp_id == elems->mesh_config[0] &&
 		mconf->mesh_pm_id == elems->mesh_config[1] &&
 		mconf->mesh_cc_id == elems->mesh_config[2] &&

@@ -118,8 +118,7 @@ static void bss_add_pmk(struct wlantest *wt, struct wlantest_bss *bss)
 		    os_memcmp(p->bssid, bss->bssid, ETH_ALEN) != 0)
 			continue;
 		if (p->ssid_len &&
-		    (p->ssid_len != bss->ssid_len ||
-		     os_memcmp(p->ssid, bss->ssid, p->ssid_len) != 0))
+		    !buf_eq(p->ssid, p->ssid_len, bss->ssid, bss->ssid_len))
 			continue;
 
 		if (bss_add_pmk_from_passphrase(bss, p->passphrase) < 0)
@@ -144,8 +143,7 @@ void bss_update(struct wlantest *wt, struct wlantest_bss *bss,
 		return;
 	}
 
-	if (bss->ssid_len != elems->ssid_len ||
-	    os_memcmp(bss->ssid, elems->ssid, bss->ssid_len) != 0) {
+	if (!buf_eq(bss->ssid, bss->ssid_len, elems->ssid, elems->ssid_len)) {
 		wpa_printf(MSG_DEBUG, "Store SSID '%s' for BSSID " MACSTR,
 			   wpa_ssid_txt(elems->ssid, elems->ssid_len),
 			   MAC2STR(bss->bssid));

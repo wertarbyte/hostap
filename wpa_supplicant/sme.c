@@ -229,8 +229,7 @@ static void sme_send_authentication(struct wpa_supplicant *wpa_s,
 	params.ssid_len = bss->ssid_len;
 	params.p2p = ssid->p2p_group;
 
-	if (wpa_s->sme.ssid_len != params.ssid_len ||
-	    os_memcmp(wpa_s->sme.ssid, params.ssid, params.ssid_len) != 0)
+	if (!buf_eq(wpa_s->sme.ssid, wpa_s->sme.ssid_len, params.ssid, params.ssid_len))
 		wpa_s->sme.prev_bssid_set = 0;
 
 	wpa_s->sme.freq = params.freq;

@@ -878,8 +878,7 @@ static int already_connected(struct wpa_supplicant *wpa_s,
 	if (ssid->parent_cred != cred)
 		return 0;
 
-	if (ssid->ssid_len != bss->ssid_len ||
-	    os_memcmp(ssid->ssid, bss->ssid, bss->ssid_len) != 0)
+	if (!buf_eq(ssid->ssid, ssid->ssid_len, bss->ssid, bss->ssid_len))
 		return 0;
 
 	sel_ssid = NULL;
@@ -900,8 +899,7 @@ static void remove_duplicate_network(struct wpa_supplicant *wpa_s,
 	for (ssid = wpa_s->conf->ssid; ssid; ssid = ssid->next) {
 		if (ssid->parent_cred != cred)
 			continue;
-		if (ssid->ssid_len != bss->ssid_len ||
-		    os_memcmp(ssid->ssid, bss->ssid, bss->ssid_len) != 0)
+		if (!buf_eq(ssid->ssid, ssid->ssid_len, bss->ssid, bss->ssid_len))
 			continue;
 
 		break;
@@ -1088,16 +1086,15 @@ static int roaming_consortium_element_match(const u8 *ie, const u8 *rc_id,
 	if (pos + (lens & 0x0f) + (lens >> 4) > end)
 		return 0;
 
-	if ((lens & 0x0f) == rc_len && os_memcmp(pos, rc_id, rc_len) == 0)
+	if (buf_eq(pos, (lens & 0x0f), rc_id, rc_len))
 		return 1;
 	pos += lens & 0x0f;
 
-	if ((lens >> 4) == rc_len && os_memcmp(pos, rc_id, rc_len) == 0)
+	if (buf_eq(pos, (lens >> 4), rc_id, rc_len))
 		return 1;
 	pos += lens >> 4;
 
-	if (pos < end && (size_t) (end - pos) == rc_len &&
-	    os_memcmp(pos, rc_id, rc_len) == 0)
+	if (pos < end && buf_eq(pos, (size_t)(end - pos), rc_id, rc_len))
 		return 1;
 
 	return 0;
@@ -1121,7 +1118,7 @@ static int roaming_consortium_anqp_match(const struct wpabuf *anqp,
 		len = *pos++;
 		if (pos + len > end)
 			break;
-		if (len == rc_len && os_memcmp(pos, rc_id, rc_len) == 0)
+		if (buf_eq(pos, len, rc_id, rc_len))
 			return 1;
 		pos += len;
 	}
@@ -1168,8 +1165,7 @@ static int cred_excluded_ssid(struct wpa_cred *cred, struct wpa_bss *bss)
 
 	for (i = 0; i < cred->num_excluded_ssid; i++) {
 		struct excluded_ssid *e = &cred->excluded_ssid[i];
-		if (bss->ssid_len == e->ssid_len &&
-		    os_memcmp(bss->ssid, e->ssid, e->ssid_len) == 0)
+		if (buf_eq(bss->ssid, bss->ssid_len, e->ssid, e->ssid_len))
 			return 1;
 	}
 
@@ -2232,9 +2228,7 @@ static int interworking_find_network_match(struct wpa_supplicant *wpa_s)
 			if (wpas_network_disabled(wpa_s, ssid) ||
 			    ssid->mode != WPAS_MODE_INFRA)
 				continue;
-			if (ssid->ssid_len != bss->ssid_len ||
-			    os_memcmp(ssid->ssid, bss->ssid, ssid->ssid_len) !=
-			    0)
+			if (!buf_eq(ssid->ssid, ssid->ssid_len, bss->ssid, bss->ssid_len))
 				continue;
 			/*
 			 * TODO: Consider more accurate matching of security
@@ -2528,8 +2522,7 @@ interworking_match_anqp_info(struct wpa_supplicant *wpa_s, struct wpa_bss *bss)
 			continue;
 		if (os_memcmp(bss->hessid, other->hessid, ETH_ALEN) != 0)
 			continue;
-		if (bss->ssid_len != other->ssid_len ||
-		    os_memcmp(bss->ssid, other->ssid, bss->ssid_len) != 0)
+		if (!buf_eq(bss->ssid, bss->ssid_len, other->ssid, other->ssid_len))
 			continue;
 
 		wpa_msg(wpa_s, MSG_DEBUG,

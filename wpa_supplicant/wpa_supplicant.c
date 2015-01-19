@@ -1691,8 +1691,7 @@ void ibss_mesh_setup_freq(struct wpa_supplicant *wpa_s,
 		if (!bss_is_ibss(bss))
 			continue;
 
-		if (ssid->ssid_len == bss->ssid_len &&
-		    os_memcmp(ssid->ssid, bss->ssid, bss->ssid_len) == 0) {
+		if (buf_eq(ssid->ssid, ssid->ssid_len, bss->ssid, bss->ssid_len)) {
 			wpa_printf(MSG_DEBUG,
 				   "IBSS already found in scan results, adjust control freq: %d",
 				   bss->freq);
@@ -2872,8 +2871,7 @@ struct wpa_ssid * wpa_supplicant_get_ssid(struct wpa_supplicant *wpa_s)
 	entry = wpa_s->conf->ssid;
 	while (entry) {
 		if (!wpas_network_disabled(wpa_s, entry) &&
-		    ((ssid_len == entry->ssid_len &&
-		      os_memcmp(ssid, entry->ssid, ssid_len) == 0) || wired) &&
+		    (buf_eq(ssid, ssid_len, entry->ssid, entry->ssid_len) || wired) &&
 		    (!entry->bssid_set ||
 		     os_memcmp(bssid, entry->bssid, ETH_ALEN) == 0))
 			return entry;
@@ -4761,8 +4759,7 @@ static int * get_bss_freqs_in_ess(struct wpa_supplicant *wpa_s)
 	dl_list_for_each(bss, &wpa_s->bss, struct wpa_bss, list) {
 		if (bss == cbss)
 			continue;
-		if (bss->ssid_len == cbss->ssid_len &&
-		    os_memcmp(bss->ssid, cbss->ssid, bss->ssid_len) == 0 &&
+		if (buf_eq(bss->ssid, bss->ssid_len, cbss->ssid, cbss->ssid_len) &&
 		    wpa_blacklist_get(wpa_s, bss->bssid) == NULL) {
 			add_freq(freqs, &num_freqs, bss->freq);
 			if (num_freqs == max_freqs)
@@ -5137,8 +5134,7 @@ int disallowed_ssid(struct wpa_supplicant *wpa_s, const u8 *ssid,
 
 	for (i = 0; i < wpa_s->disallow_aps_ssid_count; i++) {
 		struct wpa_ssid_value *s = &wpa_s->disallow_aps_ssid[i];
-		if (ssid_len == s->ssid_len &&
-		    os_memcmp(ssid, s->ssid, ssid_len) == 0)
+		if (buf_eq(ssid, ssid_len, s->ssid, s->ssid_len))
 			return 1;
 	}
 

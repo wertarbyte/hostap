@@ -377,8 +377,7 @@ static int wpa_get_beacon_ie(struct wpa_supplicant *wpa_s)
 		if (os_memcmp(bss->bssid, wpa_s->bssid, ETH_ALEN) != 0)
 			continue;
 		if (ssid == NULL ||
-		    ((bss->ssid_len == ssid->ssid_len &&
-		      os_memcmp(bss->ssid, ssid->ssid, ssid->ssid_len) == 0) ||
+		    (buf_eq(bss->ssid, bss->ssid_len, ssid->ssid, ssid->ssid_len) ||
 		     ssid->ssid_len == 0)) {
 			curr = bss;
 			break;

@@ -1211,7 +1211,7 @@ int wpa_compare_rsn_ie(int ft_initial_assoc,
 	if (ie1 == NULL || ie2 == NULL)
 		return -1;
 
-	if (ie1len == ie2len && os_memcmp(ie1, ie2, ie1len) == 0)
+	if (buf_eq(ie1, ie1len, ie2, ie2len))
 		return 0; /* identical IEs */
 
 #ifdef CONFIG_IEEE80211R

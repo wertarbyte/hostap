@@ -1033,8 +1033,7 @@ static int wpa_supplicant_validate_ie(struct wpa_sm *sm,
 	}
 
 	if ((ie->wpa_ie && sm->ap_wpa_ie &&
-	     (ie->wpa_ie_len != sm->ap_wpa_ie_len ||
-	      os_memcmp(ie->wpa_ie, sm->ap_wpa_ie, ie->wpa_ie_len) != 0)) ||
+	     !buf_eq(ie->wpa_ie, ie->wpa_ie_len, sm->ap_wpa_ie, sm->ap_wpa_ie_len)) ||
 	    (ie->rsn_ie && sm->ap_rsn_ie &&
 	     wpa_compare_rsn_ie(wpa_key_mgmt_ft(sm->key_mgmt),
 				sm->ap_rsn_ie, sm->ap_rsn_ie_len,
@@ -2137,8 +2136,7 @@ static void wpa_sm_pmksa_free_cb(struct rsn_pmksa_cache_entry *entry,
 	}
 
 	if (reason == PMKSA_EXPIRE &&
-	    (sm->pmk_len == entry->pmk_len &&
-	     os_memcmp(sm->pmk, entry->pmk, sm->pmk_len) == 0)) {
+	    buf_eq(sm->pmk, sm->pmk_len, entry->pmk, entry->pmk_len)) {
 		wpa_dbg(sm->ctx->msg_ctx, MSG_DEBUG,
 			"RSN: deauthenticating due to expired PMK");
 		pmksa_cache_clear_current(sm);

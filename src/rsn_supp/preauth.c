@@ -472,8 +472,7 @@ void rsn_preauth_scan_result(struct wpa_sm *sm, const u8 *bssid,
 	struct wpa_ie_data ie;
 	struct rsn_pmksa_cache_entry *pmksa;
 
-	if (ssid[1] != sm->ssid_len ||
-	    os_memcmp(ssid + 2, sm->ssid, sm->ssid_len) != 0)
+	if (!buf_eq(ssid + 2, ssid[1], sm->ssid, sm->ssid_len))
 		return; /* Not for the current SSID */
 
 	if (os_memcmp(bssid, sm->bssid, ETH_ALEN) == 0)

@@ -266,8 +266,7 @@ void pmksa_cache_flush(struct rsn_pmksa_cache *pmksa, void *network_ctx,
 		if ((entry->network_ctx == network_ctx ||
 		     network_ctx == NULL) &&
 		    (pmk == NULL ||
-		     (pmk_len == entry->pmk_len &&
-		      os_memcmp(pmk, entry->pmk, pmk_len) == 0))) {
+		     buf_eq(pmk, pmk_len, entry->pmk, entry->pmk_len))) {
 			wpa_printf(MSG_DEBUG, "RSN: Flush PMKSA cache entry "
 				   "for " MACSTR, MAC2STR(entry->aa));
 			if (prev)

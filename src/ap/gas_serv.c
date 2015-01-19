@@ -637,8 +637,7 @@ static void anqp_add_icon_binary_file(struct hostapd_data *hapd,
 			  name, name_len);
 	for (i = 0; i < hapd->conf->hs20_icons_count; i++) {
 		icon = &hapd->conf->hs20_icons[i];
-		if (name_len == os_strlen(icon->name) &&
-		    os_memcmp(name, icon->name, name_len) == 0)
+		if (buf_eq(name, name_len, icon->name, os_strlen(icon->name)))
 			break;
 	}
 

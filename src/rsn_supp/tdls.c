@@ -2296,8 +2296,7 @@ static int wpa_tdls_process_tpk_m2(struct wpa_sm *sm, const u8 *src_addr,
 	 * match. Since we list only a single pairwise cipher in TPK M1, the
 	 * memcmp is likely to work in most cases, though.
 	 */
-	if (kde.rsn_ie_len != peer->rsnie_i_len ||
-	    os_memcmp(peer->rsnie_i, kde.rsn_ie, peer->rsnie_i_len) != 0) {
+	if (!buf_eq(peer->rsnie_i, kde.rsn_ie_len, kde.rsn_ie, peer->rsnie_i_len)) {
 		wpa_printf(MSG_INFO, "TDLS: RSN IE in TPK M2 does "
 			   "not match with RSN IE used in TPK M1");
 		wpa_hexdump(MSG_DEBUG, "TDLS: RSN IE Sent in TPK M1",
@@ -2499,8 +2498,7 @@ static int wpa_tdls_process_tpk_m3(struct wpa_sm *sm, const u8 *src_addr,
 	}
 	wpa_hexdump(MSG_DEBUG, "TDLS: RSN IE Received from TPK M3",
 		    kde.rsn_ie, kde.rsn_ie_len);
-	if (kde.rsn_ie_len != peer->rsnie_p_len ||
-	    os_memcmp(kde.rsn_ie, peer->rsnie_p, peer->rsnie_p_len) != 0) {
+	if (!buf_eq(kde.rsn_ie, kde.rsn_ie_len, peer->rsnie_p, peer->rsnie_p_len)) {
 		wpa_printf(MSG_INFO, "TDLS: RSN IE in TPK M3 does not match "
 			   "with the one sent in TPK M2");
 		goto error;

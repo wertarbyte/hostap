@@ -384,8 +384,7 @@ static int eapol_test_compare_pmk(struct eapol_test_data *e)
 		return ret;
 	}
 
-	if (e->authenticator_eap_key_name_len != sess_id_len ||
-	    os_memcmp(e->authenticator_eap_key_name, sess_id, sess_id_len) != 0)
+	if (!buf_eq(e->authenticator_eap_key_name, e->authenticator_eap_key_name_len, sess_id, sess_id_len))
 	{
 		wpa_printf(MSG_INFO,
 			   "Locally derived EAP Session-Id does not match EAP-Key-Name from server");

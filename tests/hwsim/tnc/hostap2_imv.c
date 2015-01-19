@@ -94,8 +94,7 @@ TNC_Result TNC_IMV_ReceiveMessage(
 	if (!send_message)
 		return TNC_RESULT_FATAL;
 
-	if (messageType == 1 && messageLength == 5 &&
-	    os_memcmp(message, "hello", 5) == 0) {
+	if (messageType == 1 && buf_eq(message, messageLength, "hello", 5)) {
 		char *msg = "hello";
 
 		res = send_message(imvID, connectionID, msg, os_strlen(msg), 1);
@@ -103,8 +102,7 @@ TNC_Result TNC_IMV_ReceiveMessage(
 			return res;
 	}
 
-	if (messageType == 1 && messageLength == 8 &&
-	    os_memcmp(message, "i'm fine", 8) == 0) {
+	if (messageType == 1 && buf_eq(message, messageLength, "i'm fine", 8)) {
 		if (!provide_recomm)
 			return TNC_RESULT_FATAL;
 		res = provide_recomm(imvID, connectionID,

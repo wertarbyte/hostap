@@ -372,9 +372,7 @@ static void gas_query_rx_comeback(struct gas_query *gas,
 		   MAC2STR(query->addr), query->dialog_token, frag_id,
 		   more_frags, comeback_delay);
 
-	if ((size_t) 2 + adv_proto[1] != wpabuf_len(query->adv_proto) ||
-	    os_memcmp(adv_proto, wpabuf_head(query->adv_proto),
-		      wpabuf_len(query->adv_proto)) != 0) {
+	if (!buf_eq(adv_proto, (size_t)2 + adv_proto[1], wpabuf_head(query->adv_proto), wpabuf_len(query->adv_proto))) {
 		wpa_printf(MSG_DEBUG, "GAS: Advertisement Protocol changed "
 			   "between initial and comeback response from "
 			   MACSTR, MAC2STR(query->addr));

@@ -501,8 +501,7 @@ compare_scan_neighbor_results(struct wpa_supplicant *wpa_s)
 			continue;
 		}
 
-		if (bss->ssid_len != target->ssid_len ||
-		    os_memcmp(bss->ssid, target->ssid, bss->ssid_len) != 0) {
+		if (!buf_eq(bss->ssid, bss->ssid_len, target->ssid, target->ssid_len)) {
 			/*
 			 * TODO: Could consider allowing transition to another
 			 * ESS if PMF was enabled for the association.

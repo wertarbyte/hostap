@@ -556,7 +556,7 @@ static int wpa_ctrl_attach_helper(struct wpa_ctrl *ctrl, int attach)
 			       buf, &len, NULL);
 	if (ret < 0)
 		return ret;
-	if (len == 3 && os_memcmp(buf, "OK\n", 3) == 0)
+	if (buf_eq(buf, len, "OK\n", 3))
 		return 0;
 	return -1;
 }

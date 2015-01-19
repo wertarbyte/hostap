@@ -41,8 +41,8 @@ static void * eap_vendor_test_init(struct eap_sm *sm)
 	data->first_try = 1;
 
 	password = eap_get_config_password(sm, &password_len);
-	data->test_pending_req = password && password_len == 7 &&
-		os_memcmp(password, "pending", 7) == 0;
+	data->test_pending_req = password && buf_eq(password, password_len,
+						    "pending", 7);
 
 	return data;
 }

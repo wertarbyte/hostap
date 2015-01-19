@@ -64,7 +64,7 @@ OBJS += ../src/ap/ieee802_11_shared.o
 OBJS += ../src/ap/beacon.o
 OBJS += ../src/ap/bss_load.o
 
-OBJS_c = hostapd_cli.o ../src/common/wpa_ctrl.o ../src/utils/os_$(CONFIG_OS).o
+OBJS_c = hostapd_cli.o ../src/utils/common.o ../src/common/wpa_ctrl.o ../src/utils/os_$(CONFIG_OS).o
 
 NEED_RC4=y
 NEED_AES=y

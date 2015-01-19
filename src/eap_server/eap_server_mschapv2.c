@@ -360,8 +360,7 @@ static void eap_mschapv2_process_response(struct eap_sm *sm,
 		}
 	}
 
-	if (username_len != user_len ||
-	    os_memcmp(username, user, username_len) != 0) {
+	if (!buf_eq(username, username_len, user, user_len)) {
 		wpa_printf(MSG_DEBUG, "EAP-MSCHAPV2: Mismatch in user names");
 		wpa_hexdump_ascii(MSG_DEBUG, "EAP-MSCHAPV2: Expected user "
 				  "name", username, username_len);

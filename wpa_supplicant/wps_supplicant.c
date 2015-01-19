@@ -417,10 +417,7 @@ static int wpa_supplicant_wps_cred(void *ctx,
 		wpa_printf(MSG_DEBUG, "WPS: Replace WPS network block based "
 			   "on the received credential");
 #ifdef CONFIG_WPS_REG_DISABLE_OPEN
-		if (ssid->eap.identity &&
-		    ssid->eap.identity_len == WSC_ID_REGISTRAR_LEN &&
-		    os_memcmp(ssid->eap.identity, WSC_ID_REGISTRAR,
-			      WSC_ID_REGISTRAR_LEN) == 0)
+		if (ssid->eap.identity && buf_eq(ssid->eap.identity, ssid->eap.identity_len, WSC_ID_REGISTRAR, WSC_ID_REGISTRAR_LEN))
 			registrar = 1;
 #endif /* CONFIG_WPS_REG_DISABLE_OPEN */
 		os_free(ssid->eap.identity);
