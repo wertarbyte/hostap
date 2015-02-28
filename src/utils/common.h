@@ -499,7 +499,15 @@ size_t printf_decode(u8 *buf, size_t maxlen, const char *str);
 
 const char * wpa_ssid_txt(const u8 *ssid, size_t ssid_len);
 
-int buf_eq(const void *buf_a, size_t len_a, const void *buf_b, size_t len_b);
+/**
+ * buf_eq - Check two buffers for equality
+ * @buf_a: first buffer
+ * @len_a: Length of first buffer
+ * @buf_b: second buffer
+ * @len_b: Length of second buffer
+ * Returns: 1 on equality, 0 otherwise
+ */
+#define buf_eq(buf_a, len_a, buf_b, len_b) ((len_a == len_b) && (os_memcmp(buf_a, buf_b, len_a) == 0))
 
 char * wpa_config_parse_string(const char *value, size_t *len);
 int is_hex(const u8 *data, size_t len);
