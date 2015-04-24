@@ -642,6 +642,7 @@ struct sta_info * ap_sta_add(struct hostapd_data *hapd, const u8 *addr)
 	hapd->sta_list = sta;
 	hapd->num_sta++;
 	ap_sta_hash_add(hapd, sta);
+	sta->ssid = &hapd->conf->ssid;
 	ap_sta_remove_in_other_bss(hapd, sta);
 	sta->last_seq_ctrl = WLAN_INVALID_MGMT_SEQ;
 	dl_list_init(&sta->ip6addr);
@@ -808,10 +809,10 @@ int ap_sta_bind_vlan(struct hostapd_data *hapd, struct sta_info *sta)
 	int old_vlanid = sta->vlan_id_bound;
 
 	iface = hapd->conf->iface;
-	if (hapd->conf->ssid.vlan[0])
-		iface = hapd->conf->ssid.vlan;
+	if (sta->ssid->vlan[0])
+		iface = sta->ssid->vlan;
 
-	if (hapd->conf->ssid.dynamic_vlan == DYNAMIC_VLAN_DISABLED)
+	if (sta->ssid->dynamic_vlan == DYNAMIC_VLAN_DISABLED)
 		sta->vlan_id = 0;
 	else if (sta->vlan_id > 0) {
 		struct hostapd_vlan *wildcard_vlan = NULL;
