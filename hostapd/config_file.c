@@ -2054,6 +2054,24 @@ static int hostapd_config_fill(struct hostapd_config *conf,
 	} else if (os_strcmp(buf, "utf8_ssid") == 0) {
 		bss->ssid.utf8_ssid = atoi(pos) > 0;
 #ifdef CONFIG_MULTI_SSID
+	} else if (os_strcmp(buf, "secondary_ssid") == 0) {
+		struct hostapd_ssid_str *sec;
+		if (bss->secondary_ssid_count >= MAX_BSS_SECONDARY_SSID_COUNT) {
+			wpa_printf(MSG_ERROR,
+				   "Line %d: count of secondary ssids exceeded",
+				   line);
+			return 1;
+		}
+		sec = &bss->secondary_ssid[bss->secondary_ssid_count];
+		sec->ssid_len = os_strlen(pos);
+		if (sec->ssid_len > SSID_MAX_LEN ||
+		    sec->ssid_len < 1) {
+			wpa_printf(MSG_ERROR, "Line %d: invalid SSID '%s'",
+				   line, pos);
+			return 1;
+		}
+		os_memcpy(sec->ssid, pos, sec->ssid_len);
+		bss->secondary_ssid_count++;
 	} else if (os_strcmp(buf, "catchall") == 0) {
 		bss->ssid.catchall = atoi(pos) > 0;
 #endif /* CONFIG_MULTI_SSID */

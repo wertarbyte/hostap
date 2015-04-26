@@ -79,6 +79,11 @@ typedef enum hostap_security_policy {
 	SECURITY_OSEN = 5
 } secpolicy;
 
+struct hostapd_ssid_str {
+	u8 ssid[SSID_MAX_LEN];
+	size_t ssid_len;
+};
+
 struct hostapd_ssid {
 	u8 ssid[SSID_MAX_LEN];
 	size_t ssid_len;
@@ -221,6 +226,9 @@ struct anqp_element {
 	struct wpabuf *payload;
 };
 
+#ifdef CONFIG_MULTI_SSID
+#define MAX_BSS_SECONDARY_SSID_COUNT 8
+#endif /* CONFIG_MULTI_SSID */
 
 /**
  * struct hostapd_bss_config - Per-BSS configuration
@@ -265,6 +273,11 @@ struct hostapd_bss_config {
 	size_t radius_das_shared_secret_len;
 
 	struct hostapd_ssid ssid;
+
+#ifdef CONFIG_MULTI_SSID
+	int secondary_ssid_count;
+	struct hostapd_ssid_str secondary_ssid[MAX_BSS_SECONDARY_SSID_COUNT];
+#endif /* CONFIG_MULTI_SSID */
 
 	char *eap_req_id_text; /* optional displayable message sent with
 				* EAP Request-Identity */

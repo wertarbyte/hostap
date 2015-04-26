@@ -1257,6 +1257,20 @@ int hostapd_get_aid(struct hostapd_data *hapd, struct sta_info *sta)
 	return 0;
 }
 
+#ifdef CONFIG_MULTI_SSID
+static u8 check_secondary_ssid(struct hostapd_data *hapd,
+		      const u8 *ssid_ie, size_t ssid_ie_len)
+{
+	size_t i;
+	for (i = 0; i < hapd->conf->secondary_ssid_count; i++) {
+		struct hostapd_ssid_str *s = &hapd->conf->secondary_ssid[i];
+		if (ssid_ie_len == s->ssid_len &&
+		    os_memcmp(ssid_ie, s->ssid, ssid_ie_len) == 0)
+			return 1;
+	}
+	return 0;
+}
+#endif /* CONFIG_MULTI_SSID */
 
 static u16 check_ssid(struct hostapd_data *hapd, struct sta_info *sta,
 		      const u8 *ssid_ie, size_t ssid_ie_len)
@@ -1270,11 +1284,13 @@ static u16 check_ssid(struct hostapd_data *hapd, struct sta_info *sta,
 	}
 
 #ifdef CONFIG_MULTI_SSID
-	if (hapd->conf->ssid.catchall) {
+	if (hapd->conf->ssid.catchall ||
+	    check_secondary_ssid(hapd, ssid_ie, ssid_ie_len)) {
 		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE80211,
 			       HOSTAPD_LEVEL_INFO,
-			       "Station associating with catchall network, requested SSID "
-			       "'%s'", wpa_ssid_txt(ssid_ie, ssid_ie_len));
+			       "Station associating with catchall/secondary network,"
+			       "requested SSID '%s'",
+			       wpa_ssid_txt(ssid_ie, ssid_ie_len));
 		sta->ssid = hostapd_clone_twin_ssid(hapd->conf, ssid_ie, ssid_ie_len);
 		if (sta->ssid == NULL)
 			return WLAN_STATUS_UNSPECIFIED_FAILURE;

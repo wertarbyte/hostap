@@ -535,6 +535,7 @@ enum ssid_match_result {
 	NO_SSID_MATCH,
 	EXACT_SSID_MATCH,
 #ifdef CONFIG_MULTI_SSID
+	SECONDARY_SSID_MATCH,
 	CATCHALL_SSID_MATCH,
 #endif /* CONFIG_MULTI_SSID */
 	WILDCARD_SSID_MATCH
@@ -545,6 +546,9 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 					 const u8 *ssid_list,
 					 size_t ssid_list_len)
 {
+#ifdef CONFIG_MULTI_SSID
+	size_t i;
+#endif /* CONFIG_MULTI_SSID */
 	const u8 *pos, *end;
 	int wildcard = 0;
 
@@ -553,6 +557,15 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 	if (ssid_len == hapd->conf->ssid.ssid_len &&
 	    os_memcmp(ssid, hapd->conf->ssid.ssid, ssid_len) == 0)
 		return EXACT_SSID_MATCH;
+
+#ifdef CONFIG_MULTI_SSID
+	for (i = 0; i < hapd->conf->secondary_ssid_count; i++) {
+		struct hostapd_ssid_str *s = &hapd->conf->secondary_ssid[i];
+		if (ssid_len == s->ssid_len &&
+		    os_memcmp(ssid, s->ssid, ssid_len) == 0)
+			return SECONDARY_SSID_MATCH;
+	}
+#endif /* CONFIG_MULTI_SSID */
 
 	if (ssid_list == NULL)
 		return wildcard ? WILDCARD_SSID_MATCH : NO_SSID_MATCH;
@@ -567,6 +580,15 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 		if (pos[1] == hapd->conf->ssid.ssid_len &&
 		    os_memcmp(pos + 2, hapd->conf->ssid.ssid, pos[1]) == 0)
 			return EXACT_SSID_MATCH;
+#ifdef CONFIG_MULTI_SSID
+		for (i = 0; i < hapd->conf->secondary_ssid_count; i++) {
+			struct hostapd_ssid_str *s = &hapd->conf->secondary_ssid[i];
+			if (pos[1] == s->ssid_len &&
+			    os_memcmp(pos + 2, s->ssid, pos[1]) == 0)
+				return SECONDARY_SSID_MATCH;
+		}
+#endif /* CONFIG_MULTI_SSID */
+
 		pos += 2 + pos[1];
 	}
 
@@ -577,10 +599,11 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 static u8 ssid_is_handled(struct hostapd_iface *iface, const u8 *ssid, size_t ssid_len) {
 	size_t i;
 	struct hostapd_data *bss;
+	enum ssid_match_result res;
 	for (i = 0; i < iface->num_bss; i++) {
 		bss = iface->bss[i];
-		if (bss->conf->ssid.ssid_len == ssid_len &&
-		    os_memcmp(bss->conf->ssid.ssid, ssid, ssid_len) == 0)
+		res = ssid_match(bss, ssid, ssid_len, NULL, 0);
+		if (res == EXACT_SSID_MATCH || res == SECONDARY_SSID_MATCH)
 			return 1;
 	}
 	return 0;
@@ -802,6 +825,16 @@ void handle_probe_req(struct hostapd_data *hapd,
 
 #ifdef CONFIG_MULTI_SSID
 	/*
+	 * The client is requesting one of our secondary
+	 * SSID strings, so we just play along and use the
+	 * supplied values.
+	 */
+	if (res == SECONDARY_SSID_MATCH) {
+		ssid = elems.ssid;
+		ssid_len = elems.ssid_len;
+	}
+
+	/*
 	 * Process the probe request if "catchall" is set and no other match
 	 * is found in this or any other BSS.
 	 */
@@ -825,9 +858,14 @@ void handle_probe_req(struct hostapd_data *hapd,
 			#ifdef CONFIG_MULTI_SSID
 			hostapd_free_cloned_ssid(sta->ssid_probe);
 			sta->ssid_probe = NULL;
-			if (res == CATCHALL_SSID_MATCH)
+			if (res == CATCHALL_SSID_MATCH || res == SECONDARY_SSID_MATCH) {
+				/*
+				 * if the client isn't using the default SSID, we
+				 * create a temporary (and client specific) configuration
+				 * using the default settings as a template
+				 */
 				sta->ssid_probe = hostapd_clone_twin_ssid(hapd->conf, ssid, ssid_len);
-			else
+			} else
 			#endif /* CONFIG_MULTI_SSID */
 				sta->ssid_probe = &hapd->conf->ssid;
 		}
